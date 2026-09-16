@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incredible Voyages — Bespoke India Journeys</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
+<style>
+  :root{
+    --indigo:#161A38;
+    --indigo-2:#20264F;
+    --marigold:#F2A93B;
+    --maroon:#7E2130;
+    --sandstone:#D9A566;
+    --ivory:#F7F1E4;
+    --ink:#100E1C;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--indigo);}
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--ivory);
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4,.display-font{
+    font-family:'Fraunces',serif;
+    letter-spacing:.2px;
+  }
+  #bg-canvas{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    z-index:0;
+    display:block;
+    pointer-events:none;
+  }
+  #intro{
+    position:fixed;inset:0;
+    background:var(--ink);
+    z-index:999;
+    display:flex;align-items:center;justify-content:center;
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  #intro.hide{opacity:0;visibility:hidden;pointer-events:none;}
+  #intro-canvas{position:absolute;inset:0;pointer-events:none;}
+  #intro-title{
+    position:relative;z-index:2;
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-style:italic;
+    color:var(--marigold);
+    font-size:clamp(1.6rem,5vw,3rem);
+    opacity:0;
+    animation:introFade 1s ease forwards;
+    text-align:center;
+    letter-spacing:1px;
+  }
+  @keyframes introFade{
+    0%{opacity:0; transform:scale(.85);}
+    40%{opacity:1; transform:scale(1);}
+    100%{opacity:1; transform:scale(1);}
+  }
+  .app-wrap{position:relative;z-index:1;}
+
+  nav.iv-nav{
+    background:rgba(22,26,56,.72);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(242,169,59,.25);
+  }
+  .navbar-brand{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:600;
+    color:var(--marigold)!important;
+    font-size:1.5rem;
+  }
+  .nav-link{
+    color:var(--ivory)!important;
+    opacity:.8;
+    margin:0 .6rem;
+    font-weight:500;
+    position:relative;
+  }
+  .nav-link.active{opacity:1;color:var(--marigold)!important;}
+
+  .hero-section{
+    min-height:92vh;
+    display:flex;
+    align-items:center;
+    padding-top:5rem;
+    position:relative;
+  }
+  .hero-bg-img{
+    position:absolute;
+    top:0;right:0;
+    width:46%;
+    height:100%;
+    background-image:url('https://picsum.photos/seed/india-hero-taj/900/1200');
+    background-size:cover;
+    background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent,black 30%);
+    mask-image:linear-gradient(90deg,transparent,black 30%);
+    opacity:.55;
+    transform-origin:bottom center;
+    animation:treeSway 4.5s ease-in-out infinite;
+  }
+  @keyframes treeSway{
+    0%,100%{transform:rotate(0deg) scale(1);}
+    25%{transform:rotate(0.6deg) scale(1.003);}
+    50%{transform:rotate(-0.4deg) scale(1);}
+    75%{transform:rotate(0.5deg) scale(1.002);}
+  }
+  .leaf-accent{
+    position:absolute;
+    font-size:2.2rem;
+    color:rgba(242,169,59,.35);
+    transform-origin:bottom center;
+    animation:leafShake 2.6s ease-in-out infinite;
+    pointer-events:none;
+    user-select:none;
+  }
+  @keyframes leafShake{
+    0%,100%{transform:rotate(-6deg);}
+    50%{transform:rotate(8deg);}
+  }
+  .review-avatar{
+    width:52px;height:52px;border-radius:50%;
+    object-fit:cover;
+    border:2px solid var(--marigold);
+  }
+  .stars{color:var(--marigold); letter-spacing:2px; font-size:.9rem;}
+  .snow-layer{
+    position:absolute;inset:0;
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .snowflake{
+    position:absolute;
+    top:-10px;
+    background:#fff;
+    border-radius:50%;
+    opacity:.85;
+    animation:snowfall linear infinite;
+  }
+  @keyframes snowfall{
+    0%{transform:translateY(-10px) translateX(0);}
+    100%{transform:translateY(115vh) translateX(20px);}
+  }
+  .eyebrow-line{
+    width:46px;height:2px;background:var(--marigold);display:inline-block;margin-right:12px;vertical-align:middle;
+  }
+  .hero-title{
+    font-size:clamp(2.6rem,6vw,4.6rem);
+    font-weight:500;
+    line-height:1.05;
+    color:var(--ivory);
+  }
+  .hero-title em{
+    color:var(--marigold);
+    font-style:italic;
+  }
+  .hero-sub{
+    max-width:520px;
+    font-size:1.1rem;
+    color:rgba(247,241,228,.78);
+    line-height:1.7;
+  }
+  .btn-marigold{
+    background:var(--marigold);
+    border:none;
+    color:var(--ink);
+    font-weight:600;
+    padding:.8rem 1.8rem;
+    border-radius:2px;
+  }
+  .btn-marigold:hover{background:#ffbb55;color:var(--ink);}
+  .btn-outline-cream{
+    border:1px solid rgba(247,241,228,.5);
+    color:var(--ivory);
+    padding:.8rem 1.8rem;
+    border-radius:2px;
+    background:transparent;
+  }
+  .btn-outline-cream:hover{border-color:var(--marigold);color:var(--marigold);}
+
+  .card-glass{
+    background:rgba(32,38,79,.55);
+    border:1px solid rgba(242,169,59,.18);
+    backdrop-filter:blur(6px);
+    border-radius:4px;
+    transition:transform .25s ease, border-color .25s ease;
+  }
+  .card-glass:hover{transform:translateY(-6px);border-color:rgba(242,169,59,.5);}
+
+  .section-pad{padding:5.5rem 0;}
+  .divider-orn{
+    display:flex;align-items:center;gap:14px;margin-bottom:1.4rem;
+  }
+  .divider-orn span{
+    color:var(--marigold);
+    font-family:'Fraunces',serif;font-style:italic;
+  }
+  .divider-orn::after{
+    content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(242,169,59,.5),transparent);
+  }
+
+  .stat-num{
+    font-family:'Fraunces',serif;
+    font-size:2.6rem;
+    color:var(--marigold);
+  }
+
+  footer{
+    border-top:1px solid rgba(242,169,59,.2);
+    background:rgba(16,14,28,.75);
+    padding-top:3.5rem;
+    color:rgba(247,241,228,.65);
+  }
+  .footer-brand{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:600;
+    color:var(--marigold);
+    font-size:1.4rem;
+  }
+  .footer-heading{
+    color:var(--ivory);
+    font-size:.85rem;
+    letter-spacing:.5px;
+    margin-bottom:1rem;
+    font-weight:600;
+  }
+  .footer-link{
+    display:block;
+    color:rgba(247,241,228,.65);
+    text-decoration:none;
+    font-size:.9rem;
+    margin-bottom:.6rem;
+    cursor:pointer;
+    transition:color .2s ease;
+    width:fit-content;
+  }
+  .footer-link:hover{color:var(--marigold);}
+  .footer-social{
+    width:38px;height:38px;
+    border:1px solid rgba(247,241,228,.3);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--ivory);
+    text-decoration:none;
+    margin-right:.6rem;
+    font-size:.9rem;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .footer-social:hover{border-color:var(--marigold);color:var(--marigold);}
+  .footer-bottom{
+    border-top:1px solid rgba(247,241,228,.1);
+    margin-top:2.5rem;
+    padding:1.4rem 0;
+    font-size:.82rem;
+  }
+  .newsletter-input{
+    background:rgba(247,241,228,.06);
+    border:1px solid rgba(247,241,228,.25);
+    color:var(--ivory);
+    border-radius:2px 0 0 2px;
+    font-size:.9rem;
+  }
+  .newsletter-input::placeholder{color:rgba(247,241,228,.4);}
+  .newsletter-input:focus{outline:none; border-color:var(--marigold); background:rgba(247,241,228,.1); color:var(--ivory);}
+
+  .price-tag{
+    font-family:'Fraunces',serif;
+    color:var(--marigold);
+    font-size:1.7rem;
+  }
+
+  .form-control-iv{
+    background:rgba(247,241,228,.06);
+    border:1px solid rgba(247,241,228,.25);
+    color:var(--ivory);
+    border-radius:2px;
+  }
+  .form-control-iv:focus{
+    background:rgba(247,241,228,.1);
+    border-color:var(--marigold);
+    color:var(--ivory);
+    box-shadow:none;
+  }
+  .form-control-iv::placeholder{color:rgba(247,241,228,.4);}
+
+  .contact-info-item{
+    border-left:2px solid var(--marigold);
+    padding-left:1rem;
+    margin-bottom:1.6rem;
+  }
+
+  .map-pin{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--marigold);
+    display:inline-block;
+    margin-right:8px;
+    box-shadow:0 0 0 4px rgba(242,169,59,.2);
+  }
+
+  .badge-route{
+    background:rgba(242,169,59,.15);
+    color:var(--marigold);
+    border:1px solid rgba(242,169,59,.35);
+    font-weight:500;
+    font-size:.75rem;
+    padding:.35rem .7rem;
+    border-radius:2px;
+  }
+
+  ::selection{background:var(--marigold);color:var(--ink);}
+
+  @media(max-width:767px){
+    .section-pad{padding:3.2rem 0;}
+  }
+</style>
+</head>
+<body>
+
+<div id="intro">
+  <canvas id="intro-canvas"></canvas>
+  <div id="intro-title">INCREDIBLE&nbsp;VOYAGES</div>
+</div>
+
+<canvas id="bg-canvas"></canvas>
+<div id="root" class="app-wrap"></div>
+
+<script>
+/* ============ INTRO 3D ANIMATION (mandala burst, ~1s) ============ */
+(function(){
+  const canvas = document.getElementById('intro-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.z = 6;
+
+  const group = new THREE.Group();
+  scene.add(group);
+
+  const colors = [0xF2A93B, 0x7E2130, 0xD9A566];
+  const geo = new THREE.OctahedronGeometry(0.18, 0);
+  const count = 60;
+  const meshes = [];
+  for(let i=0;i<count;i++){
+    const mat = new THREE.MeshBasicMaterial({color: colors[i%colors.length], transparent:true, opacity:0.9});
+    const m = new THREE.Mesh(geo, mat);
+    const angle = (i/count) * Math.PI * 2;
+    const radius = 0.2;
+    m.userData = {
+      angle,
+      targetRadius: 2.2 + Math.random()*1.6,
+      speed: 0.5 + Math.random()*0.5,
+      spin: Math.random()*0.05
+    };
+    m.position.set(Math.cos(angle)*radius, Math.sin(angle)*radius, 0);
+    group.add(m);
+    meshes.push(m);
+  }
+
+  let start = null;
+  function animateIntro(ts){
+    if(!start) start = ts;
+    const t = Math.min((ts-start)/1000, 1);
+    const ease = 1 - Math.pow(1-t, 3);
+    meshes.forEach(m=>{
+      const r = m.userData.targetRadius * ease;
+      m.position.x = Math.cos(m.userData.angle + ease*2) * r;
+      m.position.y = Math.sin(m.userData.angle + ease*2) * r;
+      m.rotation.x += m.userData.spin;
+      m.rotation.y += m.userData.spin;
+      m.material.opacity = 0.9 * (1-ease*0.3);
+    });
+    group.rotation.z = ease * 1.2;
+    camera.position.z = 6 - ease*1.5;
+    renderer.render(scene, camera);
+    if(t<1){
+      requestAnimationFrame(animateIntro);
+    }
+  }
+  requestAnimationFrame(animateIntro);
+
+  window.addEventListener('resize', ()=>{
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+
+  setTimeout(()=>{
+    document.getElementById('intro').classList.add('hide');
+  }, 1050);
+})();
+
+/* ============ PERSISTENT ANIMATED 3D BACKGROUND ============ */
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.z = 10;
+
+  // Starfield / floating spice-dust particles
+  const particleCount = 1400;
+  const positions = new Float32Array(particleCount*3);
+  const colorsArr = new Float32Array(particleCount*3);
+  const palette = [
+    new THREE.Color(0xF2A93B),
+    new THREE.Color(0xD9A566),
+    new THREE.Color(0x7E2130),
+    new THREE.Color(0xF7F1E4)
+  ];
+  for(let i=0;i<particleCount;i++){
+    positions[i*3] = (Math.random()-0.5)*30;
+    positions[i*3+1] = (Math.random()-0.5)*30;
+    positions[i*3+2] = (Math.random()-0.5)*20 - 5;
+    const c = palette[Math.floor(Math.random()*palette.length)];
+    colorsArr[i*3]=c.r; colorsArr[i*3+1]=c.g; colorsArr[i*3+2]=c.b;
+  }
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  pGeo.setAttribute('color', new THREE.BufferAttribute(colorsArr,3));
+  const pMat = new THREE.PointsMaterial({size:0.06, vertexColors:true, transparent:true, opacity:0.75});
+  const points = new THREE.Points(pGeo, pMat);
+  scene.add(points);
+
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('mousemove', (e)=>{
+    mouseX = (e.clientX/window.innerWidth - 0.5);
+    mouseY = (e.clientY/window.innerHeight - 0.5);
+  });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    points.rotation.y += 0.0006;
+    points.rotation.x += 0.0002;
+    camera.position.x += (mouseX*1.5 - camera.position.x)*0.02;
+    camera.position.y += (-mouseY*1.5 - camera.position.y)*0.02;
+    camera.lookAt(0,0,0);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', ()=>{
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+})();
+</script>
+
+<script type="text/babel">
+const {useState, useEffect} = React;
+
+const DESTINATIONS = [
+  {name:"Jaipur, Rajasthan", tag:"Forts & Palaces", desc:"Amber Fort at sunrise, the pink old city, and rooftop dinners under a desert sky.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Jaipur%2003-2016%2004%20Amber%20Fort.jpg?width=700"},
+  {name:"Kerala Backwaters", tag:"Houseboats", desc:"Drift through palm-lined canals on a private houseboat with a chef on board.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Kerala%20backwaters%2C%20Vembanad%20Lake%2C%20Houseboats%2C%20India.jpg?width=700"},
+  {name:"Varanasi Ghats", tag:"Spiritual", desc:"Dawn boat rides past centuries-old ghats as the evening aarti lights the river.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Evening%20Ganga%20Aarti%2C%20at%20Dashashwamedh%20ghat%2C%20Varanasi.jpg?width=700"},
+  {name:"Ladakh Highlands", tag:"High Himalaya", desc:"Turquoise lakes, monasteries above the clouds, and the world's highest motorable passes.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Pangong%20Lake%2C%20Ladakh%2C%20India%2006.jpg?width=700"},
+  {name:"Goa Coastline", tag:"Beaches", desc:"Portuguese-era lanes, spice plantations, and beach shacks by the Arabian Sea.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Goa%20Beach.jpg?width=700"},
+  {name:"Agra & Taj Mahal", tag:"Heritage", desc:"A private sunrise viewing of the Taj, followed by Agra Fort's red sandstone halls.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Taj%20Mahal%2C%20Agra%2C%20India.jpg?width=700"},
+  {name:"Udaipur, Rajasthan", tag:"Lake City", desc:"The City Palace at dusk, boat rides on Lake Pichola, and havelis turned lakeside hotels.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Lake%20Palace%2C%20Udaipur%2C%20Rajasthan.jpg?width=700"},
+  {name:"Hampi, Karnataka", tag:"Ruins", desc:"Boulder-strewn landscapes scattered with the temple ruins of a 14th-century empire.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Hampi%20Temple%20Ruins.jpg?width=700"},
+  {name:"Rishikesh, Uttarakhand", tag:"Himalayan Foothills", desc:"Ganga aarti by the river, suspension bridges, and yoga ashrams framed by forested hills.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Ram%20Jhula%20Bridge%2C%20Rishikesh.jpg?width=700"},
+  {name:"Darjeeling, West Bengal", tag:"Tea Country", desc:"Misty tea estates, toy-train rides, and sunrise views of Kanchenjunga.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Darjeeling%2C%20India%2C%20Tea%20plantations.jpg?width=700"},
+  {name:"Andaman Islands", tag:"Islands", desc:"Turquoise lagoons, coral reefs, and colonial history on Havelock and Neil Island.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Radhanagar%20Beach%2C%20Havelock%20Island%2C%20Andaman%2C%20India.jpg?width=700"},
+  {name:"Mumbai, Maharashtra", tag:"City & Coast", desc:"The Gateway of India, colonial architecture, and the city's relentless energy after dark.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Mumbai%2003-2016%2030%20Gateway%20of%20India.jpg?width=700"}
+];
+
+const REVIEWS = [
+  {name:"Ananya Rao", trip:"Royal Rajasthan", quote:"Every hotel, every guide, every meal felt hand-picked. The desert camp night was the highlight of our year.", rating:5, avatar:"https://ui-avatars.com/api/?name=Ananya+Rao&background=F2A93B&color=100E1C&size=128&font-size=0.38&bold=true"},
+  {name:"Rohan Mehta", trip:"Kerala Serenity", quote:"Our houseboat chef cooked to our taste every single night. Effortless planning from start to finish.", rating:5, avatar:"https://ui-avatars.com/api/?name=Rohan+Mehta&background=7E2130&color=F7F1E4&size=128&font-size=0.38&bold=true"},
+  {name:"Priya & Karan Shah", trip:"Golden Triangle Classic", quote:"First trip to India and it was seamless. Our trip manager answered messages within minutes, always.", rating:5, avatar:"https://ui-avatars.com/api/?name=Priya+Shah&background=D9A566&color=100E1C&size=128&font-size=0.38&bold=true"},
+  {name:"Neha Kapoor", trip:"Himalayan High Roads", quote:"Ladakh at altitude is no joke, but the team's local doctor briefing and pacing made it comfortable and safe.", rating:4, avatar:"https://ui-avatars.com/api/?name=Neha+Kapoor&background=20264F&color=F2A93B&size=128&font-size=0.38&bold=true"}
+];
+
+const PACKAGES = [
+  {name:"Golden Triangle Classic", days:"6 Days / 5 Nights", price:"₹42,000", cities:"Delhi · Agra · Jaipur", desc:"The essential first journey through India's most iconic monuments and markets.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Taj%20Mahal%2C%20Agra%2C%20India.jpg?width=900"},
+  {name:"Kerala Serenity", days:"7 Days / 6 Nights", price:"₹58,500", cities:"Kochi · Munnar · Alleppey", desc:"Tea hills, spice gardens, and two nights aboard a private backwater houseboat.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Tea%20plantation%20in%20Munnar.jpg?width=900"},
+  {name:"Royal Rajasthan", days:"10 Days / 9 Nights", price:"₹89,000", cities:"Jaipur · Udaipur · Jodhpur · Jaisalmer", desc:"Palaces, desert camps under the stars, and heritage havelis turned hotels.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Jodhpur%20is%20Blue.jpg?width=900"},
+  {name:"Himalayan High Roads", days:"9 Days / 8 Nights", price:"₹96,500", cities:"Leh · Nubra Valley · Pangong Tso", desc:"An expedition-style route across the highest passes in the Indian Himalaya.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Pangong%20Lake%2C%20Ladakh%2C%20India%2006.jpg?width=900"},
+  {name:"Southern Coastal Trail", days:"8 Days / 7 Nights", price:"₹64,000", cities:"Goa · Gokarna · Hampi", desc:"Beach towns, quiet coves, and the temple ruins of a lost empire.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Goa%20Beach.jpg?width=900"},
+  {name:"Northeast Explorer", days:"9 Days / 8 Nights", price:"₹78,500", cities:"Darjeeling · Gangtok · Pelling", desc:"Tea estates, monasteries, and views of the world's third-highest peak.", img:"https://commons.wikimedia.org/wiki/Special:FilePath/Darjeeling%2C%20India%2C%20Tea%20plantations.jpg?width=900"}
+];
+
+function CountUp({end, duration=1500, suffix="", decimals=0}){
+  const [value, setValue] = useState(0);
+  const ref = React.useRef(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(()=>{
+    const el = ref.current;
+    if(!el) return;
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting && !started){
+          setStarted(true);
+        }
+      });
+    }, {threshold:0.4});
+    obs.observe(el);
+    return ()=>obs.disconnect();
+  }, [started]);
+
+  useEffect(()=>{
+    if(!started) return;
+    let startTime = null;
+    function step(ts){
+      if(!startTime) startTime = ts;
+      const progress = Math.min((ts-startTime)/duration, 1);
+      const eased = 1 - Math.pow(1-progress, 3);
+      setValue(end * eased);
+      if(progress < 1) requestAnimationFrame(step);
+      else setValue(end);
+    }
+    requestAnimationFrame(step);
+  }, [started, end, duration]);
+
+  const display = decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toLocaleString();
+  return <span ref={ref}>{display}{suffix}</span>;
+}
+
+function NavBar({page, setPage}){
+  const links = ["Home","Destinations","Packages","Contact"];
+  return (
+    <nav className="navbar navbar-expand-lg iv-nav fixed-top py-3">
+      <div className="container">
+        <a className="navbar-brand" href="#" onClick={(e)=>{e.preventDefault();setPage("Home");}}>Incredible Voyages</a>
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#ivNav" style={{borderColor:'rgba(247,241,228,.4)'}}>
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse justify-content-end" id="ivNav">
+          <ul className="navbar-nav">
+            {links.map(l=>(
+              <li className="nav-item" key={l}>
+                <a className={"nav-link" + (page===l ? " active":"")} href="#"
+                   onClick={(e)=>{e.preventDefault(); setPage(l);}}>{l}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function Home({setPage, goToContact}){
+  return (
+    <div>
+      <section className="hero-section">
+        <div className="hero-bg-img">
+          <div className="snow-layer">
+            {Array.from({length: 60}).map((_,i)=>{
+              const size = 2 + Math.random()*4;
+              const left = Math.random()*100;
+              const duration = 6 + Math.random()*10;
+              const delay = Math.random()*10;
+              return (
+                <span key={i} className="snowflake" style={{
+                  width:size+'px', height:size+'px',
+                  left:left+'%',
+                  animationDuration:duration+'s',
+                  animationDelay:'-'+delay+'s'
+                }}></span>
+              );
+            })}
+          </div>
+        </div>
+        <span className="leaf-accent" style={{bottom:'8%', left:'4%', animationDelay:'0s'}}>🌿</span>
+        <span className="leaf-accent" style={{bottom:'14%', left:'12%', fontSize:'1.6rem', animationDelay:'0.6s'}}>🌿</span>
+        <span className="leaf-accent" style={{bottom:'6%', left:'20%', fontSize:'1.9rem', animationDelay:'1.2s'}}>🌱</span>
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-8">
+              <div className="mb-3"><span className="eyebrow-line"></span>Bespoke Journeys Across India</div>
+              <h1 className="hero-title mb-4">Travel the way<br/><em>India remembers you.</em></h1>
+              <p className="hero-sub mb-4">
+                We design private, small-group journeys across India's forts, coastlines,
+                and highlands — planned by people who grew up on these roads, not a booking engine.
+              </p>
+              <div className="d-flex gap-3 flex-wrap">
+                <button className="btn btn-marigold" onClick={()=>setPage("Packages")}>View Packages</button>
+                <button className="btn btn-outline-cream" onClick={()=>setPage("Contact")}>Plan My Trip</button>
+              </div>
+            </div>
+          </div>
+          <div className="row mt-5 pt-4">
+            <div className="col-6 col-md-3">
+              <div className="stat-num"><CountUp end={18} /></div>
+              <div style={{opacity:.7,fontSize:'.9rem'}}>Years on the road</div>
+            </div>
+            <div className="col-6 col-md-3">
+              <div className="stat-num"><CountUp end={4200} suffix="+" /></div>
+              <div style={{opacity:.7,fontSize:'.9rem'}}>Travellers guided</div>
+            </div>
+            <div className="col-6 col-md-3">
+              <div className="stat-num"><CountUp end={26} /></div>
+              <div style={{opacity:.7,fontSize:'.9rem'}}>States covered</div>
+            </div>
+            <div className="col-6 col-md-3">
+              <div className="stat-num"><CountUp end={4.9} decimals={1} suffix="/5" /></div>
+              <div style={{opacity:.7,fontSize:'.9rem'}}>Traveller rating</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section-pad">
+        <div className="container">
+          <div className="divider-orn"><span>Where to next</span></div>
+          <div className="row g-4">
+            {DESTINATIONS.slice(0,3).map(d=>(
+              <div className="col-md-4" key={d.name}>
+                <div className="card-glass h-100 overflow-hidden">
+                  <div style={{height:'170px', backgroundImage:'url('+d.img+')', backgroundSize:'cover', backgroundPosition:'center'}}></div>
+                  <div className="p-3">
+                    <span className="badge-route">{d.tag}</span>
+                    <h5 className="mt-3 mb-2">{d.name}</h5>
+                    <p style={{opacity:.75, fontSize:'.92rem'}}>{d.desc}</p>
+                    <div className="d-flex gap-2 mt-3">
+                      <button className="btn btn-marigold btn-sm" onClick={()=>goToContact(d.name)}>Plan This Trip</button>
+                      <button className="btn btn-outline-cream btn-sm" onClick={()=>setPage("Destinations")}>View More</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-4">
+            <button className="btn btn-outline-cream" onClick={()=>setPage("Destinations")}>See all destinations</button>
+          </div>
+        </div>
+      </section>
+
+      <section className="section-pad" style={{background:'rgba(0,0,0,.15)'}}>
+        <div className="container">
+          <div className="divider-orn"><span>Why travel with us</span></div>
+          <div className="row g-4">
+            {[
+              ["Local-first planning","Every itinerary is built by regional specialists who live where you're going, not a call centre."],
+              ["Small groups only","Never more than 12 travellers, and private departures on request."],
+              ["24/7 on-ground support","A dedicated trip manager reachable throughout your journey."]
+            ].map(([t,d])=>(
+              <div className="col-md-4" key={t}>
+                <div className="card-glass h-100 p-4">
+                  <h5 className="mb-2">{t}</h5>
+                  <p style={{opacity:.75,fontSize:'.92rem'}}>{d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section-pad">
+        <div className="container">
+          <div className="divider-orn"><span>Traveller reviews</span></div>
+          <div className="row g-4">
+            {REVIEWS.map(r=>(
+              <div className="col-md-6" key={r.name}>
+                <div className="card-glass h-100 p-4 d-flex flex-row gap-3">
+                  <img src={r.avatar} className="review-avatar" alt={r.name} />
+                  <div>
+                    <div className="stars mb-1">{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</div>
+                    <p style={{opacity:.85, fontSize:'.92rem'}} className="mb-2">"{r.quote}"</p>
+                    <div style={{fontWeight:600}}>{r.name}</div>
+                    <div style={{opacity:.6, fontSize:'.8rem'}}>{r.trip}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Destinations({goToContact}){
+  return (
+    <div className="section-pad" style={{paddingTop:'8rem'}}>
+      <div className="container">
+        <div className="mb-2"><span className="eyebrow-line"></span>Explore</div>
+        <h2 className="mb-4">Destinations across <em style={{color:'var(--marigold)',fontStyle:'italic'}}>the subcontinent</em></h2>
+        <div className="row g-4">
+          {DESTINATIONS.map(d=>(
+            <div className="col-md-6 col-lg-4" key={d.name}>
+              <div className="card-glass h-100 overflow-hidden">
+                <div style={{height:'190px', backgroundImage:'url('+d.img+')', backgroundSize:'cover', backgroundPosition:'center'}}></div>
+                <div className="p-3">
+                  <span className="badge-route">{d.tag}</span>
+                  <h5 className="mt-3 mb-2">{d.name}</h5>
+                  <p style={{opacity:.75, fontSize:'.92rem'}}>{d.desc}</p>
+                  <div className="d-flex gap-2 mt-3 flex-wrap">
+                    <button className="btn btn-marigold btn-sm" onClick={()=>goToContact(d.name)}>Enquire Now</button>
+                    <a
+                      className="btn btn-outline-cream btn-sm"
+                      href={"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(d.name)}
+                      target="_blank" rel="noopener noreferrer"
+                    >View on Map</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Packages({setPage}){
+  return (
+    <div className="section-pad" style={{paddingTop:'8rem'}}>
+      <div className="container">
+        <div className="mb-2"><span className="eyebrow-line"></span>Curated Itineraries</div>
+        <h2 className="mb-4">Journeys ready to <em style={{color:'var(--marigold)',fontStyle:'italic'}}>customise</em></h2>
+        <div className="row g-4">
+          {PACKAGES.map(p=>(
+            <div className="col-md-6" key={p.name}>
+              <div className="card-glass h-100 overflow-hidden d-flex flex-column">
+                <div style={{height:'220px', backgroundImage:'url('+p.img+')', backgroundSize:'cover', backgroundPosition:'center', position:'relative'}}>
+                  <div style={{position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(16,14,28,0) 40%,rgba(16,14,28,.85))'}}></div>
+                  <span className="price-tag" style={{position:'absolute', bottom:'10px', right:'16px'}}>{p.price}</span>
+                </div>
+                <div className="p-4 d-flex flex-column flex-grow-1">
+                  <h5 className="mb-1">{p.name}</h5>
+                  <div style={{opacity:.65, fontSize:'.85rem'}} className="mb-2">{p.days} &nbsp;·&nbsp; {p.cities}</div>
+                  <p style={{opacity:.78, fontSize:'.92rem'}} className="flex-grow-1">{p.desc}</p>
+                  <button className="btn btn-marigold mt-2 align-self-start" onClick={()=>setPage("Contact")}>Enquire Now</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Contact({prefillDestination}){
+  const [sent, setSent] = useState(false);
+  const [destination, setDestination] = useState(prefillDestination || "");
+
+  useEffect(()=>{
+    setDestination(prefillDestination || "");
+  }, [prefillDestination]);
+
+  function submit(e){
+    e.preventDefault();
+    setSent(true);
+  }
+  return (
+    <div className="section-pad" style={{paddingTop:'8rem'}}>
+      <div className="container">
+        <div className="mb-2"><span className="eyebrow-line"></span>Get in touch</div>
+        <h2 className="mb-5">Let's plan your <em style={{color:'var(--marigold)',fontStyle:'italic'}}>India journey</em></h2>
+        <div className="row g-5">
+          <div className="col-lg-5">
+            <div className="contact-info-item">
+              <div style={{opacity:.6,fontSize:'.8rem'}}>Studio</div>
+              <div><span className="map-pin"></span>C-14, Defence Colony, New Delhi 110024</div>
+            </div>
+            <div className="contact-info-item">
+              <div style={{opacity:.6,fontSize:'.8rem'}}>Call</div>
+              <div>+91 98100 22345</div>
+            </div>
+            <div className="contact-info-item">
+              <div style={{opacity:.6,fontSize:'.8rem'}}>Email</div>
+              <div>journeys@incrediblevoyages.in</div>
+            </div>
+            <div className="contact-info-item">
+              <div style={{opacity:.6,fontSize:'.8rem'}}>Hours</div>
+              <div>Mon – Sat, 9:30am – 7:00pm IST</div>
+            </div>
+          </div>
+          <div className="col-lg-7">
+            <div className="card-glass p-4 p-md-5">
+              {sent ? (
+                <div>
+                  <h5 className="mb-2" style={{color:'var(--marigold)'}}>Message sent</h5>
+                  <p style={{opacity:.8}}>A trip designer will write back within one business day.</p>
+                </div>
+              ) : (
+                <form onSubmit={submit}>
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <label className="form-label" style={{fontSize:'.85rem',opacity:.75}}>Full name</label>
+                      <input required className="form-control form-control-iv" placeholder="Your name" />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label" style={{fontSize:'.85rem',opacity:.75}}>Email</label>
+                      <input required type="email" className="form-control form-control-iv" placeholder="you@example.com" />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label" style={{fontSize:'.85rem',opacity:.75}}>Preferred destination</label>
+                      <input className="form-control form-control-iv" placeholder="e.g. Rajasthan" value={destination} onChange={(e)=>setDestination(e.target.value)} />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label" style={{fontSize:'.85rem',opacity:.75}}>Travel month</label>
+                      <input className="form-control form-control-iv" placeholder="e.g. December 2026" />
+                    </div>
+                    <div className="col-12">
+                      <label className="form-label" style={{fontSize:'.85rem',opacity:.75}}>Tell us about your trip</label>
+                      <textarea rows="4" className="form-control form-control-iv" placeholder="Group size, interests, pace..."></textarea>
+                    </div>
+                    <div className="col-12">
+                      <button type="submit" className="btn btn-marigold w-100">Send Enquiry</button>
+                    </div>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Footer({setPage}){
+  const [email, setEmail] = useState("");
+  const [joined, setJoined] = useState(false);
+  return (
+    <footer>
+      <div className="container">
+        <div className="row g-4">
+          <div className="col-lg-4">
+            <div className="footer-brand mb-3">Incredible Voyages</div>
+            <p style={{fontSize:'.9rem', maxWidth:'320px', opacity:.75}}>
+              A Delhi-based travel studio designing private, small-group journeys
+              across India since 2008. Eighteen years of local knowledge, on every itinerary.
+            </p>
+            <div className="mt-3">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Instagram">IG</a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="Facebook">FB</a>
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="X">X</a>
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="footer-social" aria-label="YouTube">YT</a>
+            </div>
+          </div>
+          <div className="col-6 col-lg-2">
+            <div className="footer-heading">Explore</div>
+            <a className="footer-link" onClick={()=>setPage("Home")}>Home</a>
+            <a className="footer-link" onClick={()=>setPage("Destinations")}>Destinations</a>
+            <a className="footer-link" onClick={()=>setPage("Packages")}>Packages</a>
+            <a className="footer-link" onClick={()=>setPage("Contact")}>Contact</a>
+          </div>
+          <div className="col-6 col-lg-2">
+            <div className="footer-heading">Company</div>
+            <a className="footer-link" onClick={()=>setPage("Home")}>About Us</a>
+            <a className="footer-link" onClick={()=>setPage("Packages")}>Our Guides</a>
+            <a className="footer-link" onClick={()=>setPage("Contact")}>Careers</a>
+            <a className="footer-link" onClick={()=>{setPage("Home"); setTimeout(()=>window.scrollTo({top:document.body.scrollHeight*0.55, behavior:'smooth'}),50);}}>Traveller Reviews</a>
+          </div>
+          <div className="col-6 col-lg-2">
+            <div className="footer-heading">Support</div>
+            <a className="footer-link" onClick={()=>setPage("Contact")}>FAQs</a>
+            <a className="footer-link" onClick={()=>setPage("Contact")}>Booking Terms</a>
+            <a className="footer-link" onClick={()=>setPage("Contact")}>Travel Insurance</a>
+            <a className="footer-link" onClick={()=>setPage("Contact")}>Privacy Policy</a>
+          </div>
+          <div className="col-lg-2">
+            <div className="footer-heading">Stay in the loop</div>
+            <p style={{fontSize:'.85rem', opacity:.7}}>New itineraries, once a month.</p>
+            {joined ? (
+              <div style={{color:'var(--marigold)', fontSize:'.85rem'}}>Subscribed — thank you.</div>
+            ) : (
+              <form className="d-flex" onSubmit={(e)=>{e.preventDefault(); if(email) setJoined(true);}}>
+                <input
+                  type="email" required value={email}
+                  onChange={(e)=>setEmail(e.target.value)}
+                  className="form-control newsletter-input" placeholder="Email"
+                  style={{fontSize:'.85rem'}}
+                />
+                <button type="submit" className="btn btn-marigold" style={{borderRadius:'0 2px 2px 0', padding:'.5rem .9rem'}}>→</button>
+              </form>
+            )}
+          </div>
+        </div>
+        <div className="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+          <div>© 2026 Incredible Voyages. All rights reserved.</div>
+          <div style={{fontFamily:'Fraunces, serif', fontStyle:'italic'}}>Journeys, not itineraries.</div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function App(){
+  const [page, setPage] = useState("Home");
+  const [prefillDestination, setPrefillDestination] = useState("");
+  useEffect(()=>{ window.scrollTo(0,0); }, [page]);
+  function goToContact(destination){
+    setPrefillDestination(destination || "");
+    setPage("Contact");
+  }
+  return (
+    <React.Fragment>
+      <NavBar page={page} setPage={setPage} />
+      {page==="Home" && <Home setPage={setPage} goToContact={goToContact} />}
+      {page==="Destinations" && <Destinations goToContact={goToContact} />}
+      {page==="Packages" && <Packages setPage={setPage} />}
+      {page==="Contact" && <Contact prefillDestination={prefillDestination} />}
+      <Footer setPage={setPage} />
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
